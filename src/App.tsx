@@ -1,25 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import LoginPage from './pages/login'
+import {RecoilRoot} from 'recoil';
+import {BrowserRouter,Switch,Route} from 'react-router-dom';
+import SignUp from './pages/signUp';
+import CatchMind from './pages/catchmind';
 
-function App() {
+const App:React.FC =()=>{
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <RecoilRoot>
+      <div className="App">
+        <BrowserRouter> 
+          <Switch>
+            <Route path="/" exact component={LoginPage}/>
+            <Route path="/SignUp" exact component={SignUp}/>
+            <Route path="/game" exact component={CatchMind}/>
+          </Switch>
+        </BrowserRouter>
+      </div>
+    </RecoilRoot>
   );
 }
 
