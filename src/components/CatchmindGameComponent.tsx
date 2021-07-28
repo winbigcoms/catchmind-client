@@ -1,5 +1,6 @@
 import React, { KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
 import styled from 'styled-components';
@@ -41,6 +42,8 @@ interface props {
   socket:Socket<DefaultEventsMap, DefaultEventsMap>
 }
 const CatchmindGameComponent = ({socket}:props)=>{
+  const history = useHistory();
+
   const user = useSelector((state:StoreState)=>state.loginState);
   const [users,setUsers] = useState<user[]>([]);
   const [goldenCorrect,setGoldenCorrect] = useState({state:false,name:""});
@@ -60,19 +63,21 @@ const CatchmindGameComponent = ({socket}:props)=>{
   },[]);
 
   useEffect(()=>{
+    if(!user.name){
+      history.push('/');
+    }
     socket.emit('users',user);
     socket.on('recivedUsers',data=>{
       setUsers(()=>data);
     });
     socket.on('goldenCorrect',(data)=>{
-      console.log(data);
       onCorrect(data);
       const timeOut = setTimeout(()=>{
         closeCorrect();
+        socket.emit('changeSubject');
         clearTimeout(timeOut);
       },4000)
     });
-
   },[]);
   return (
     <>

@@ -42,12 +42,11 @@ type user = {
 };
 
 const UserBox:FC<user> = ({user,position,socket}:user)=>{
-  const [messages,receiveMsg,cutMsgInterval]= useMessage()
+  const [messages,receiveMsg]= useMessage()
   useEffect(()=>{
     socket.on('chatting',data=>{
       if(data.user!==(user&&user.pid))return;
       receiveMsg(data.value);
-      cutMsgInterval();
     });
   },[user.pid]);
 
