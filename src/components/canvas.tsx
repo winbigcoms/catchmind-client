@@ -103,12 +103,9 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       return !state
     });
   },[]);
-  const autoChangeColor = useCallback((hex:string)=>{
-    changeColor(hex)
-  },[])
-  const changeAutoEraser = useCallback((state)=>{
-    setEraser(()=>{
-      return state
+  const changeAutoEraser = useCallback(()=>{
+    setEraser((state)=>{
+      return !state
     });
   },[]);
   const changeArtist = useCallback((data)=>{
@@ -174,16 +171,15 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
   },[])
   const changeAutoEraserStroke = useCallback((value)=>{
     setEraserWidth(()=>value);
-  },[])
-  console.log(color)
+  },[]);
+
   const draw = useCallback((BFmousePosition:location,AFmousePosition:location)=>{
     if(!canvasRef.current)return;
-    console.log(color)
     const canvas:HTMLCanvasElement = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const relPosition = canvas.getBoundingClientRect();
     if(ctx){
-      ctx.strokeStyle=useEraser?"#fff":color;
+      ctx.strokeStyle=useEraser?"#ffffff":color;
       ctx.lineJoin = 'round';
       ctx.lineWidth = useEraser?eraserWidth:strokeWidth;
       ctx.beginPath();
@@ -192,7 +188,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       ctx.closePath();
       ctx.stroke();
     }
-  },[useEraser,color,canvasRef.current,eraserWidth,strokeWidth])
+  },[useEraser,color,eraserWidth,strokeWidth,onPaint]);
 
   const paint = useCallback((event:MouseEvent)=>{
     event.preventDefault();
@@ -207,12 +203,6 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     }
   },[onPaint,mousePosition]);
 
-  const autoPaint = useCallback(({mousePosition,newLocation})=>{
-      if(mousePosition&&newLocation){
-        draw(mousePosition,newLocation);
-        changeMousePosition(newLocation);
-      }
-  },[mousePosition,useEraser,color,eraserWidth,strokeWidth])
   const resetPath = useCallback(()=>{
     if(!drawAble)return
     if(!canvasRef.current)return;
@@ -234,10 +224,12 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
   },[]);
+
   const savePaint = ()=>{
     const data = canvasRef.current?.toDataURL("image/jpeg",1.0);
     downloadImage(data,'masterpiece.jpeg')
   }
+
   useEffect(()=>{
     if(!canvasRef.current)return;
     const canvas:HTMLCanvasElement = canvasRef.current;
@@ -246,7 +238,8 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       ctx.fillStyle="#ffffff"
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-  },[])
+  },[]);
+
   useEffect(()=>{
     if(!canvasRef.current)return;
     const canvas:HTMLCanvasElement = canvasRef.current;
@@ -270,9 +263,6 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     socket.on('drowStart',data=>{
       startAutoPaint(data);
     })
-    socket.on('drawing',data=>{
-      autoPaint(data);
-    })
     socket.on("artist",data=>{
       changeArtist(data);
     });
@@ -282,19 +272,30 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     socket.on("stopPaint",()=>{
       stopAutoPaint();
     });
-    socket.on("pencilState",(state)=>{
-      changeAutoEraser(state);
+    socket.on("pencilState",()=>{
+      changeAutoEraser();
     });
-    socket.on('color',(hex)=>{
-      autoChangeColor(hex);
-    });
+    socket.on('color',changeColor);
     socket.on('pencilStroke',(state)=>{
       changeAutoStroke(state);
     });
     socket.on('eraserStroke',(state)=>{
       changeAutoEraserStroke(state)
     });
-  },[])
+  },[]);
+  const autoPaint = useCallback(({mousePosition,newLocation}:{mousePosition:location,newLocation:location})=>{
+    if(mousePosition&&newLocation){
+      draw(mousePosition,newLocation);
+      changeMousePosition(newLocation);
+    }
+  },[color,eraserWidth,strokeWidth,useEraser]);
+  useEffect(()=>{
+    socket.on('drawing',autoPaint);
+    return ()=>{
+      socket.off('drawing',autoPaint);
+    }
+  },[color,useEraser,eraserWidth,strokeWidth]);
+
   return (
     <CanvasConatainer>
       <Canvas ref={canvasRef} height={height} width={width}></Canvas>
@@ -331,4 +332,4 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
   )
 
 }
-export default CanvasLayer;
+export default React.memo(CanvasLayer);
