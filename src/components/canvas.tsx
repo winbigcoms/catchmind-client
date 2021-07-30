@@ -5,6 +5,8 @@ import useDraw from '../hooks/useDraw';
 import styled from 'styled-components';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
+import { StoreState } from '../redux/reducer';
+import { useSelector } from 'react-redux';
 const CanvasConatainer = styled.div`
   display:flex;
   justify-content:center;
@@ -90,13 +92,14 @@ function downloadImage(data="", filename = 'untitled.jpeg') {
 const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=>{
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const {color,changeColor} = useColors();
-  const [drawAble,setDrawAble]= useState(false);
+  const [drawAble,setDrawAble]= useState({isMyturn:false,artist:""});
   const [showColorPicker,setShowState] = useState(false);
   const [useEraser,setEraser] = useState(false);
   const [strokeWidth,setStrokeWidth] = useState(2);
   const [eraserWidth,setEraserWidth] = useState(20);
   const {mousePosition,onPaint,changeMousePosition,changePaintState} = useDraw();
   const [subtitle,setSubtitle] = useState("");
+  const user = useSelector((state:StoreState)=>state.loginState);
   const changeEraser = useCallback(()=>{
     setEraser(state=>{
       socket.emit("pencilState",!state);
@@ -129,19 +132,19 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     }
   },[]);
   const changeShowState = useCallback(()=>{
-    if(!drawAble)return
+    if(!drawAble.isMyturn)return
     setShowState(state=>!state);
   },[drawAble]);
 
   const startPaint = useCallback((event:MouseEvent):void=>{
-    if(!drawAble)return
+    if(!drawAble.isMyturn)return
     const location = getLocation(event);
     if(location){
       socket.emit('drowStart',location)
       changePaintState(true);
       changeMousePosition(location)
     }
-  },[drawAble]);
+  },[drawAble.isMyturn]);
 
   const startAutoPaint = useCallback(({x,y})=>{
     const location = getAutoLocation({x,y});
@@ -204,7 +207,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
   },[onPaint,mousePosition]);
 
   const resetPath = useCallback(()=>{
-    if(!drawAble)return
+    if(!drawAble.isMyturn)return
     if(!canvasRef.current)return;
     socket.emit("resetPaint")
     const canvas:HTMLCanvasElement = canvasRef.current;
@@ -213,7 +216,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       ctx.fillStyle="#ffffff"
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-  },[drawAble]);
+  },[drawAble.isMyturn]);
 
   const autoResetPath = useCallback(()=>{
     if(!canvasRef.current)return;
@@ -283,6 +286,18 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       changeAutoEraserStroke(state)
     });
   },[]);
+  useEffect(()=>{
+    socket.on("newGame",data=>{
+      resetPath();
+      autoResetPath();
+      setSubtitle(()=>data.subTitle);
+      setShowState((state)=>state?false:false);
+      setDrawAble(()=>({
+        isMyturn: user.name===data.artist?true:false,
+        artist: data.artist
+      }));
+    })
+  },[])
   const autoPaint = useCallback(({mousePosition,newLocation}:{mousePosition:location,newLocation:location})=>{
     if(mousePosition&&newLocation){
       draw(mousePosition,newLocation);
@@ -299,7 +314,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
   return (
     <CanvasConatainer>
       <Canvas ref={canvasRef} height={height} width={width}></Canvas>
-      <Answer>{subtitle?subtitle:"준비중입니다."}</Answer>
+      <Answer>{drawAble.isMyturn?subtitle:`${drawAble.artist}님의 차례입니다.`}</Answer>
       <ColorPickerBtn onClick={changeShowState}>붓 설정</ColorPickerBtn>
       <ResetBtn onClick={resetPath}>전체 지우기</ResetBtn>
       <SaveBtn onClick={savePaint}>작품저장</SaveBtn>

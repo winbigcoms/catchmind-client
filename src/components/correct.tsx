@@ -9,6 +9,7 @@ const ModalConatiner = styled.div`
   height:100vh;
   width:100%;
   background-color:rgba(0,0,0,0.6);
+  z-index:2;
 `
 const ModalBox = styled.div`
   position:absolute;
@@ -28,7 +29,7 @@ const ModalBox = styled.div`
     width:100%;
   }
 `
-const Correct = ({click,name}:{click:()=>void,name:string})=>{
+const Correct:React.FC<{name:string}> = ({name}:{name:string})=>{
   return (
     <ModalConatiner className="pyro">
       <div className="before"></div>
@@ -40,7 +41,6 @@ const Correct = ({click,name}:{click:()=>void,name:string})=>{
           정답입니다!
         </p>
         <img src="./img/12.png" alt="" />
-        <button onClick={click}>닫기</button>
       </ModalBox>
     </ModalConatiner>
   )

@@ -1,4 +1,4 @@
-import React,{ ReactChild, useEffect } from "react";
+import React,{ useEffect } from "react";
 import openSocket from "../sokect/socket";
 import CatchmindGameComponent from "./CatchmindGameComponent";
 import CatchmindHeader from "./CatchmindHeader";

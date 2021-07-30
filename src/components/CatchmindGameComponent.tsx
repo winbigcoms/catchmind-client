@@ -74,11 +74,19 @@ const CatchmindGameComponent = ({socket}:props)=>{
       onCorrect(data);
       const timeOut = setTimeout(()=>{
         closeCorrect();
-        socket.emit('changeSubject');
+        socket.emit('newGame');
         clearTimeout(timeOut);
       },4000)
     });
+    socket.on("alreadLogin",()=>{
+      alert("이미 로그인된 아이디입니다.");
+      history.push('/');
+    })
   },[]);
+  useEffect(() => {
+    const image = new Image();
+    image.src = "./img/12.png";
+  }, []);
   return (
     <>
       <GameContainer>
@@ -95,7 +103,7 @@ const CatchmindGameComponent = ({socket}:props)=>{
         </UserRow>
       </GameContainer>
       <InputAnswer sendAnswer={sendAnswer} />
-      {goldenCorrect.state&& <Modal click={closeCorrect} name={goldenCorrect.name}/>}
+      {goldenCorrect.state&& <Modal name={goldenCorrect.name}/>}
     </>
   )
 }
