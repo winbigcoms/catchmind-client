@@ -152,7 +152,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       changePaintState(true);
       changeMousePosition(location)
     }
-  },[])
+  },[drawAble.isMyturn])
   
   const stopPaint = useCallback(()=>{
     changePaintState(false);
