@@ -65,7 +65,7 @@ const SignUp :React.FC<RouteComponentProps> = ({history}:SignUp) =>{
       })
     })();
   },[]);
-  const makeBase64 = (image:File):Promise<typeof image>=>new Promise((res,rej)=>{
+  const makeBase64 = (image:File):Promise<typeof image>=>new Promise(()=>{
     const reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = function(event){
@@ -120,7 +120,6 @@ const SignUp :React.FC<RouteComponentProps> = ({history}:SignUp) =>{
     const files = target.files as FileList;
     setImage(()=>files[0]);
     makeBase64(files[0]).then(res=>console.log(res));
-    // console.log(base64);
   };
 
   return (
