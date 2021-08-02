@@ -264,6 +264,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       setSubtitle(()=>data);
     });
     socket.on('drowStart',data=>{
+      console.log("123");
       startAutoPaint(data);
     })
     socket.on("artist",data=>{
@@ -285,6 +286,10 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     socket.on('eraserStroke',(state)=>{
       changeAutoEraserStroke(state)
     });
+    socket.on('artistClose',(state)=>{
+      console.log("1")
+      changeArtist({isMyturn:user.pid===state.isMyturn?true:false,artist:state.artist})
+    });
   },[]);
   useEffect(()=>{
     socket.on("newGame",data=>{
@@ -297,13 +302,16 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
         artist: data.artist
       }));
     })
-  },[])
+  },[]);
+
   const autoPaint = useCallback(({mousePosition,newLocation}:{mousePosition:location,newLocation:location})=>{
+    console.log("1")
     if(mousePosition&&newLocation){
       draw(mousePosition,newLocation);
       changeMousePosition(newLocation);
     }
   },[color,eraserWidth,strokeWidth,useEraser]);
+
   useEffect(()=>{
     socket.on('drawing',autoPaint);
     return ()=>{
