@@ -8,7 +8,7 @@ import Snows from '../components/snow';
 
 const LoginBox = styled.div`
   position:absolute;
-  top:20%;
+  top:10%;
   left:50%;
   z-index:3;
   transform:translate(-50%,20%);
@@ -22,6 +22,10 @@ const LoginBox = styled.div`
   background-color:#fff;
   label{
     margin-top:50px;
+    input{
+      margin-left:15px;
+      height: 25px
+    }
   }
   div{
     display:flex;
@@ -90,7 +94,7 @@ const LoginPage:React.FC = ()=>{
     }}>
       <h2 style={{marginLeft:"15px",color:"#fff"}}><span>캐치</span>마인드</h2>
       <LoginBox>
-        <h3>아이엠폼 캐치마인드(ver0.1)</h3>
+        <h3>캐치마인드(ver0.1)</h3>
         <label>
           로그인
           <input type="text" value={id} onChange={changeIdInput} placeholder="아이디는 이름입니다~"/>
