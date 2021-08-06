@@ -12,6 +12,7 @@ const useSnowData  = (count:number):[snowData[]] => {
   const [snowDatas,setSnowData] = useState<snowData[]>([]);
   const newSnowData = useCallback((datas:snowData[])=>datas.map(data=>{
     let x = data.x + Math.cos(data.speedOfWind);
+    // let x = data.x + Math.cos(data.y);
     let y = data.y + data.speedOfWind;
     let speedOfWind = data.speedOfWind;
     let speedOfFall = data.speedOfFall;

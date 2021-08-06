@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url = process.env.REACT_APP_URL;
+const url = process.env.REACT_APP_UURL;
 interface teamsTites{
   data:{
     teams:[string],

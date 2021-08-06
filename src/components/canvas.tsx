@@ -181,6 +181,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     const canvas:HTMLCanvasElement = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const relPosition = canvas.getBoundingClientRect();
+    console.log(relPosition.x)
     if(ctx){
       ctx.strokeStyle=useEraser?"#ffffff":color;
       ctx.lineJoin = 'round';
@@ -323,7 +324,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     <CanvasConatainer>
       <Canvas ref={canvasRef} height={height} width={width}></Canvas>
       <Answer>{drawAble.isMyturn?subtitle:`${drawAble.artist}님의 차례입니다.`}</Answer>
-      <ColorPickerBtn onClick={changeShowState}>붓 설정</ColorPickerBtn>
+      {drawAble.isMyturn && <ColorPickerBtn onClick={changeShowState}>붓 설정</ColorPickerBtn>}
       <ResetBtn onClick={resetPath}>전체 지우기</ResetBtn>
       <SaveBtn onClick={savePaint}>작품저장</SaveBtn>
       {showColorPicker&&

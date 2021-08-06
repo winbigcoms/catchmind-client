@@ -24,6 +24,7 @@ interface selecteds{
   title:string
 }
 const SignUpConatiner = styled.div`
+  box-sizing:border-box;
   width:500px;
   margin:auto;
   display:flex;
@@ -44,6 +45,7 @@ const SignUpConatiner = styled.div`
   }
   &>div>select,&>div>input{
     margin-right:15px;
+    width:150px;
   }
   &>input{
     margin-bottom:15px
