@@ -152,7 +152,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       changePaintState(true);
       changeMousePosition(location)
     }
-  },[])
+  },[drawAble.isMyturn])
   
   const stopPaint = useCallback(()=>{
     changePaintState(false);
@@ -181,6 +181,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     const canvas:HTMLCanvasElement = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const relPosition = canvas.getBoundingClientRect();
+    console.log(relPosition.x)
     if(ctx){
       ctx.strokeStyle=useEraser?"#ffffff":color;
       ctx.lineJoin = 'round';
@@ -264,6 +265,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
       setSubtitle(()=>data);
     });
     socket.on('drowStart',data=>{
+      console.log("123");
       startAutoPaint(data);
     })
     socket.on("artist",data=>{
@@ -285,6 +287,10 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     socket.on('eraserStroke',(state)=>{
       changeAutoEraserStroke(state)
     });
+    socket.on('artistClose',(state)=>{
+      console.log("1")
+      changeArtist({isMyturn:user.pid===state.isMyturn?true:false,artist:state.artist})
+    });
   },[]);
   useEffect(()=>{
     socket.on("newGame",data=>{
@@ -297,13 +303,16 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
         artist: data.artist
       }));
     })
-  },[])
+  },[]);
+
   const autoPaint = useCallback(({mousePosition,newLocation}:{mousePosition:location,newLocation:location})=>{
+    console.log("1")
     if(mousePosition&&newLocation){
       draw(mousePosition,newLocation);
       changeMousePosition(newLocation);
     }
   },[color,eraserWidth,strokeWidth,useEraser]);
+
   useEffect(()=>{
     socket.on('drawing',autoPaint);
     return ()=>{
@@ -315,7 +324,7 @@ const CanvasLayer : React.FC<canvasProps> = ({socket,width,height}:canvasProps)=
     <CanvasConatainer>
       <Canvas ref={canvasRef} height={height} width={width}></Canvas>
       <Answer>{drawAble.isMyturn?subtitle:`${drawAble.artist}님의 차례입니다.`}</Answer>
-      <ColorPickerBtn onClick={changeShowState}>붓 설정</ColorPickerBtn>
+      {drawAble.isMyturn && <ColorPickerBtn onClick={changeShowState}>붓 설정</ColorPickerBtn>}
       <ResetBtn onClick={resetPath}>전체 지우기</ResetBtn>
       <SaveBtn onClick={savePaint}>작품저장</SaveBtn>
       {showColorPicker&&

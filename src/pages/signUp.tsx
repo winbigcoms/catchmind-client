@@ -5,6 +5,7 @@ import {signUpAxios} from '../../src/axios'
 import {RouteComponentProps} from 'react-router-dom'
 import H from 'history';
 import styled from 'styled-components';
+import Snows from '../components/snow';
 
 interface SignUp{
   history:H.History
@@ -23,24 +24,48 @@ interface selecteds{
   title:string
 }
 const SignUpConatiner = styled.div`
-  width:840px;
+  box-sizing:border-box;
+  width:500px;
   margin:auto;
   display:flex;
+  position:relative;
+  z-index:2;
   flex-direction:column;
+  padding:30px 15px 15px;
+  background-color:#fff;
+  h2{
+    text-align:center;
+    margin-bottom:3rem;
+  }
   &>div{
     margin-bottom:20px;
+    span{
+      margin-right:15px;
+    }
   }
   &>div>select,&>div>input{
     margin-right:15px;
+    width:150px;
   }
-  input{
-    margin-bottom:30px;
+  &>input{
+    margin-bottom:15px
   }
   img{
     width:500px
   }
+`
+const ButtonBox = styled.div`
+  display:flex;
+  justify-content:space-between;
   button{
+    cursor:pointer;
     width:150px;
+    height:50px;
+    background-color:skyblue;
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    margin-top:15px;
   }
 `
 const SignUp :React.FC<RouteComponentProps> = ({history}:SignUp) =>{
@@ -84,9 +109,12 @@ const SignUp :React.FC<RouteComponentProps> = ({history}:SignUp) =>{
     const value = e.target.value;
     setselecteds(state=>({...state,[id]:value}))
   }
+  const goLoginPage = ()=>{
+    history.push("/")
+  }
   const singUpClick = ()=>{
     if(!inputs.name){
-      alert("이름을 입력해")
+      alert("이름을 입력해주세요")
       return
     }
     if(!inputs.age){
@@ -123,25 +151,39 @@ const SignUp :React.FC<RouteComponentProps> = ({history}:SignUp) =>{
   };
 
   return (
+  <div style={{height:"100vh",background:"black",paddingTop:"100px"}}>
     <SignUpConatiner>
       <h2>회원가입</h2>
-        <div>
-          <select value={selecteds.team} id="team" onChange={changeSelectValue}>
-            {teamsTitles.teams.map((item)=>(<option value={item} key={item}>{item}</option>))}
-          </select>
-          <select  value={selecteds.title} id="title" onChange={changeSelectValue}>
-            {teamsTitles.titles.map((item)=>(<option value={item} key={item}>{item}</option>))}
-          </select>
-        </div>
-        <div>
-          <input type="text" value={inputs.name} onChange={changeValue} placeholder="이름을 입력하세용" id="name"/>
-          <input type="number" value={inputs.age} onChange={changeValue} placeholder="(원하는)나이를입력하세요" id="age"/>
-        </div>
-        {preview&&<img src={preview}/>}
-        <input type="file" accept="image/*" onChange={uploadImg}/>
+      <div>
+        <span>팀명:</span>
+        <select value={selecteds.team} id="team" onChange={changeSelectValue}>
+          {teamsTitles.teams.map((item)=>(<option value={item} key={item}>{item}</option>))}
+        </select>
+      </div>
+      <div>
+        <span>직책:</span>
+        <select value={selecteds.title} id="title" onChange={changeSelectValue}>
+          {teamsTitles.titles.map((item)=>(<option value={item} key={item}>{item}</option>))}
+        </select>
+      </div>
+      <div>
+        <span>이름:</span>
+        <input type="text" value={inputs.name} onChange={changeValue} placeholder="이름을 입력하세용" id="name"/>
+      </div>
+      <div>
+        <span>나이:</span>
+        <input type="number" value={inputs.age} onChange={changeValue} id="age"/>
+      </div>
+      <input type="file" accept="image/*" onChange={uploadImg}/>
+      {preview&&<img src={preview}/>}
+      <ButtonBox>
         <button onClick={singUpClick} >회원가입!</button>
-        {err&&{err}}
+        <button onClick={goLoginPage} >뒤로 가기</button>
+      </ButtonBox>
+      {err&&{err}}
     </SignUpConatiner>
+    <Snows color="pink"/>
+  </div>
   )
 }
 
